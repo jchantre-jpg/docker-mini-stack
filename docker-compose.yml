@@ -1,0 +1,34 @@
+services:
+  api:
+    build: .
+    ports:
+      - "4080:4080"
+    environment:
+      - PORT=4080
+      - NODE_ENV=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4080/health"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+
+  # Ejemplo de servicio de BD listo para conectar
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: juliana
+      POSTGRES_PASSWORD: demo_pass
+      POSTGRES_DB: ministack
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U juliana -d ministack"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
